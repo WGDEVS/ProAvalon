@@ -1,11 +1,11 @@
 
 // all in lower case
 const modsArray = [
-    'pronub',
-    'morningcatt',
-    'tyrrox',
-    'citc',
-    'pam'
+    'avalonmod1',
+    'avalonmod2',
+    'avalonmod3',
+    'avalonmod4',
+    'avalonmod5'
 ];
 
 module.exports = modsArray;

@@ -10,7 +10,7 @@
 		// background-repeat: no-repeat;
 		// background-attachment: fixed;
 		// background-size: cover;
-		
+
 		// filter: brightness(50%);
 	}
 
@@ -21,7 +21,7 @@
 
 	#scrollDiv {
 		// filter: brightness(75%);
-		
+
 	}
 
 	.myContainer {
@@ -69,36 +69,39 @@
 			</div>
 
 			<div class="col-md-7 jumbotron">
-			
-				
+
+
 				<div>
 					<img id="imgBigLogo" src="/pictures/logo-min.png" style="width: 100%; text-align: center;">
 				</div>
 
-				<h1>A game of deception</h1>
-				<p id="testId">Can you outwit your opponents?</p>
-				
+				<p style="font-size: 32px" id="testId">Private Server</p>
+
 
 				<div class='hero-unit'>
 
 					<p></p>
-					<p style="font-size: 18px">This is a free online version of the popular game <a href="http://www.amazon.com/Indie-Boards-Cards-RES2IBC-Resistance/dp/B008A2BA8G"><em>The Resistance</em></a> (designed by Don Eskridge), wherein a small band of revolutionaries must use logic and deduction in order to ferret out the spies who have infiltrated their ranks and are sabotaging the cell's presumably heroic acts of rebellion against government tyranny.</p>
+					<p style="font-size: 18px; margin: 0; padding: 0">This is a private server for <a href="https://www.amazon.com/Indie-Boards-Cards-RES2IBC-Resistance/dp/B008A2BA8G"><em>The Resistance</em></a> (designed by Don Eskridge).</p>
+					<p style="font-size: 18px; margin: 0; padding: 0">This server is intended for use by the <a href="https://www.facebook.com/groups/UWDeceptionBoardGames"><em>UW Deception Board Games club</em></a>.</p>
+					<p style="font-size: 18px; margin: 0; padding: 0">All users of this server are, if eligible, encouraged to participate in the server events posted in the <a href="https://www.facebook.com/groups/UWDeceptionBoardGames">facebook group</a>.</p>
+					<p style="font-size: 18px; margin: 0; padding: 0">Note that while a server event is occurring, all non-participating users should NOT use this server in order to conserve resources.</p>
+					<p style="font-size: 18px; margin: 0; padding: 0">Outside of server events, this server is provided as-is and may be taken down without notice.</p>
 
                     <br>
                     <a style="font-size: 18px" href="/community">See our community page for regular players!</a>
 				</div>
-				
+
 
 			</div>
-			
+
 
 		</div>
-		
+
 	</div>
 
 
 <script>
-	
+
 if($("#imgBigLogo").width() < 560){
 	$($("#vid1")[0]).width($("#imgBigLogo").width());
 }
@@ -121,7 +124,7 @@ $( document ).ready(function() {
 
 		if (timeStampStr != "") {
 			var subStr = timeStampStr.substring(
-				timeStampStr.lastIndexOf("&") + 1, 
+				timeStampStr.lastIndexOf("&") + 1,
 				timeStampStr.lastIndexOf("*")
 			);
 
@@ -131,7 +134,7 @@ $( document ).ready(function() {
 			var localBanExpire = moment(subStr, "x").format("LLL");
 
 			var firstHalf = timeStampStr.substring(
-				0, 
+				0,
 				timeStampStr.lastIndexOf("&")
 			);
 
@@ -152,7 +155,7 @@ $( document ).ready(function() {
 function setupPageStuff(){
 	var scaleWidDownForm = 0.6;
 	$("#form").width($("#scroll").width()*scaleWidDownForm + "px");
-	
+
 	var leftPosOfScroll;
 	if($("#scroll").css("left") === "auto"){
 		leftPosOfScroll = $($("#form").parent()).width()*1.07/2;
@@ -169,7 +172,7 @@ function setupPageStuff(){
 	$("#form").css("left", (leftPosToScroll + distToCenter) + "px");
 	// $("#form").css("left", (leftPosToScroll + distToCenter) + "px");
 	$("#form").css("top", $("#scroll").height()*0.2 + "px");
-	
+
 	// $("#testId")[0].innerText = $("#form").parent();
 	// console.log($($("#form").parent()).find("#scroll"));
 

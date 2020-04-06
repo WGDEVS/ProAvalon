@@ -1,0 +1,12 @@
+[Unit]
+Description=ProAvalon NodeJS Application
+After=network-online.target
+Requires=mongod.service
+
+[Service]
+Restart=on-failure
+WorkingDirectory=...
+ExecStart=/usr/bin/node app.js
+
+[Install]
+WantedBy=multi-user.target

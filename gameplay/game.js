@@ -18,7 +18,7 @@ const commonPhasesIndex = require('./indexCommonPhases');
 // Get all the gamemodes and their roles/cards/phases.
 const gameModeNames = [];
 fs.readdirSync('./gameplay/').filter((file) => {
-    if (fs.statSync(`${'./gameplay' + '/'}${file}`).isDirectory() === true && file !== 'commonPhases') {
+    if (fs.statSync(`${'./gameplay' + '/'}${file}`).isDirectory() === true && file !== 'commonPhases' && file !== 'houserules') {
         gameModeNames.push(file);
     }
 });
@@ -30,6 +30,7 @@ for (let i = 0; i < gameModeNames.length; i++) {
     gameModeObj[gameModeNames[i]].Roles = require(`./${gameModeNames[i]}/indexRoles`);
     gameModeObj[gameModeNames[i]].Phases = require(`./${gameModeNames[i]}/indexPhases`);
     gameModeObj[gameModeNames[i]].Cards = require(`./${gameModeNames[i]}/indexCards`);
+    gameModeObj[gameModeNames[i]].Houserules = require(`./indexHouserules`);
 }
 
 
@@ -137,6 +138,7 @@ function Game(host_, roomId_, io_, maxNumPlayers_, newRoomPassword_, gameMode_, 
 
     this.roleKeysInPlay = [];
     this.cardKeysInPlay = [];
+    this.houseruleKeysInPlay = [];
 
     this.teamLeader = 0;
     this.hammer = 0;
@@ -191,7 +193,7 @@ Game.prototype.recoverGame = function (storedData) {
     this.specialRoles = (new gameModeObj[this.gameMode].Roles()).getRoles(this);
     this.specialPhases = (new gameModeObj[this.gameMode].Phases()).getPhases(this);
     this.specialCards = (new gameModeObj[this.gameMode].Cards()).getCards(this);
-
+    this.specialHouserules = (new gameModeObj[this.gameMode].Houserules()).getHouserules(this);
 
     // Roles
     // Remove the circular dependency
@@ -212,6 +214,16 @@ Game.prototype.recoverGame = function (storedData) {
     }
     // Merge in the objects
     _.merge(this.specialCards, storedData.specialCards);
+
+    // Houserules
+    // Remove the circular dependency
+    for (var key in storedData.specialHouserules) {
+        if (storedData.specialHouserules.hasOwnProperty(key)) {
+            delete (storedData.specialHouserules[key].thisRoom);
+        }
+    }
+    // Merge in the objects
+    _.merge(this.specialHouserules, storedData.specialHouserules);
 };
 
 //------------------------------------------------
@@ -405,6 +417,8 @@ Game.prototype.startGame = function (options) {
         // If a card file exists for this
         else if (this.specialCards.hasOwnProperty(op)) {
             this.cardKeysInPlay.push(op);
+        } else if (this.specialHouserules.hasOwnProperty(op)) {
+            this.houseruleKeysInPlay.push(op);
         } else {
             console.log(`Warning: Client requested a role that doesn't exist -> ${op}`);
         }
@@ -465,6 +479,9 @@ Game.prototype.startGame = function (options) {
     this.missionHistory = [];
 
     let str = 'Game started with: ';
+    for (var i = 0; i < this.houseruleKeysInPlay.length; i++) {
+        str += `${this.specialHouserules[this.houseruleKeysInPlay[i]].houserule}, `;
+    }
     for (var i = 0; i < this.roleKeysInPlay.length; i++) {
         str += `${this.specialRoles[this.roleKeysInPlay[i]].role}, `;
     }
@@ -655,6 +672,10 @@ Game.prototype.gameMove = function (socket, data) {
     // THIS SHOULDN'T HAPPEN!! We always require a gameMove function to change phases
     else {
         this.sendText(this.allSockets, 'ERROR LET ADMIN KNOW IF YOU SEE THIS code 1', 'gameplay-text');
+    }
+
+    if (this.houseruleKeysInPlay.indexOf('autovote') >= 0) {
+        this.specialHouserules['autovote'].runHouserule();
     }
 
     // RUN SPECIAL ROLE AND CARD CHECKS
@@ -864,7 +885,7 @@ Game.prototype.getGameData = function () {
             if (playerRoles[i].displayRole !== undefined) {
                 data[i].role = playerRoles[i].displayRole;
             }
-            
+
             // add on these common variables:
             data[i].buttons = this.getClientButtonSettings(i);
 
@@ -1045,10 +1066,10 @@ Game.prototype.finishGame = function (toBeWinner) {
     this.finished = true;
     this.winner = toBeWinner;
 
-    if (this.winner === 'Spy') {	
-        this.sendText(this.allSockets, 'The spies win!', 'gameplay-text-red');	
-    } else if (this.winner === 'Resistance') {	
-        this.sendText(this.allSockets, 'The resistance wins!', 'gameplay-text-blue');	
+    if (this.winner === 'Spy') {
+        this.sendText(this.allSockets, 'The spies win!', 'gameplay-text-red');
+    } else if (this.winner === 'Resistance') {
+        this.sendText(this.allSockets, 'The resistance wins!', 'gameplay-text-blue');
     }
 
     // Post results of Merlin guesses
@@ -1276,11 +1297,15 @@ Game.prototype.finishGame = function (toBeWinner) {
     }
 };
 
+Game.prototype.requiresTwoFails = function () {
+  if (this.playersInGame.length >= 7 && this.missionNum === 4) {
+      return true;
+  }
+  return false;
+};
+
 Game.prototype.calcMissionVotes = function (votes) {
-    let requiresTwoFails = false;
-    if (this.playersInGame.length >= 7 && this.missionNum === 4) {
-        requiresTwoFails = true;
-    }
+    let requiresTwoFails = this.requiresTwoFails();
 
     // note we may not have all the votes from every person
     // e.g. may look like "fail", "undef.", "success"

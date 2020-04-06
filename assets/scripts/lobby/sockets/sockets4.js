@@ -136,7 +136,7 @@ socket.on('serverRestartWarning', () => {
 
         <li>I apologise for the inconvenience caused. Thank you.</li>
     </ul>
-    
+
     </div>`;
 
     Swal({
@@ -170,11 +170,11 @@ socket.on('muteNotification', (modAction) => {
     You are allowed to spectate games, use the forums and check out profiles. <br><br>
 
     Your mute will be released on ${new Date(modAction.whenRelease)}. <br><br>
-    
+
     The description of your ban is: ${modAction.descriptionByMod
 
 }<br><br>
-    
+
     You can exit this message by pressing escape.`;
 
 
@@ -535,6 +535,16 @@ socket.on('update-game-modes-in-room', (gameModeObj) => {
 
     let count = 0;
 
+    // Houserules
+    for (var i = 0; i < gameModeObj.houserules.houseruleNames.length; i++) {
+        var name = gameModeObj.houserules.houseruleNames[i];
+
+        str += "<label class='btn btn-mine active'>";
+        str += `<input style='display: none;' name='${name.toLowerCase()}' id='${name.toLowerCase()}' type='checkbox' autocomplete='off' checked> ${name}`;
+        str += '</label>';
+        str += '<br>';
+    }
+
     // Roles
     for (var i = 0; i < gameModeObj.roles.roleNames.length; i++) {
         var name = gameModeObj.roles.roleNames[i];
@@ -569,10 +579,33 @@ socket.on('update-game-modes-in-room', (gameModeObj) => {
     $('#rolesCardsButtonGroup')[0].innerHTML = str;
 
     // Reset, now do descriptions
-    // Roles
     str = '';
     infoIconString = `<img class="infoIconsSettings pull-right" style="width: 16px; height: 16px;" data-toggle="tooltip" data-placement="left" title="${icons.info.toolTip}" src="${icons.info.glyph}" />`;
 
+    // Houserules
+    for (var i = 0; i < gameModeObj.houserules.houseruleNames.length; i++) {
+        var name = gameModeObj.houserules.houseruleNames[i];
+
+        str += `<div class="panel panel-default roleCardDescription">
+        <div class="panel-heading roleCardDescription" role="tab" id="heading${count}">
+        <h4 class="panel-title">
+        <a class="collapsed" role="button" data-toggle="collapse" data-parent="#rolesCardsButtonGroupDescription" href="#collapse-cardRole${count}" aria-expanded="false" aria-controls="collapse-cardRole${count}">
+            Houserule  ${infoIconString}
+        </a>
+        </h4>
+        </div>
+        <div id="collapse-cardRole${count}" class="panel-collapse collapse" role="tabpanel" aria-labelledby="heading${count}">
+        <div class="panel-body">
+            ${gameModeObj.houserules.descriptions[i]}
+        </div>
+        </div>
+        </div>`;
+
+        str += '<br>';
+        count += 1;
+    }
+
+    // Roles
     for (var i = 0; i < gameModeObj.roles.roleNames.length; i++) {
         var name = gameModeObj.roles.roleNames[i];
         // Skip over certain roles since they are enabled by default

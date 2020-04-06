@@ -37,74 +37,79 @@ VotingMission.prototype.gameMove = function (socket, buttonPressed, selectedPlay
 
     // If we have all the votes in
     if (this.thisRoom.playersYetToVote.length === 0) {
-        const outcome = this.thisRoom.calcMissionVotes(this.thisRoom.missionVotes);
-        if (outcome) {
-            this.thisRoom.missionHistory.push(outcome);
-        } else {
-            console.log(`ERROR! Outcome was: ${outcome}`);
-        }
-
-        const numOfVotedFails = countFails(this.thisRoom.missionVotes);
-        this.thisRoom.numFailsHistory.push(numOfVotedFails);
-
-        // for the gameplay message
-        if (outcome === 'succeeded') {
-            if (numOfVotedFails === 0) {
-                this.thisRoom.sendText(this.thisRoom.allSockets, `Mission ${this.thisRoom.missionNum} succeeded.`, 'gameplay-text-blue');
-            } else {
-                this.thisRoom.sendText(this.thisRoom.allSockets, `Mission ${this.thisRoom.missionNum} succeeded, but with ${numOfVotedFails} fail.`, 'gameplay-text-blue');
-            }
-        } else if (outcome === 'failed') {
-            if (numOfVotedFails === 1) {
-                this.thisRoom.sendText(this.thisRoom.allSockets, `Mission ${this.thisRoom.missionNum} failed with ${numOfVotedFails} fail.`, 'gameplay-text-red');
-            } else {
-                this.thisRoom.sendText(this.thisRoom.allSockets, `Mission ${this.thisRoom.missionNum} failed with ${numOfVotedFails} fails.`, 'gameplay-text-red');
-            }
-        }
-
-
-        // if we get all the votes in, then do this.thisRoom
-        this.thisRoom.lastProposedTeam = this.thisRoom.proposedTeam;
-        this.thisRoom.proposedTeam = [];
-        this.thisRoom.missionVotes = [];
-
-        // count number of succeeds and fails
-        let numOfSucceeds = 0;
-        let numOfFails = 0;
-        for (var i = 0; i < this.thisRoom.missionHistory.length; i++) {
-            if (this.thisRoom.missionHistory[i] === 'succeeded') {
-                numOfSucceeds++;
-            } else if (this.thisRoom.missionHistory[i] === 'failed') {
-                numOfFails++;
-            }
-        }
-
-
-        // game over if more than 3 fails or successes
-        if (numOfFails >= 3) {
-            this.thisRoom.winner = 'Spy';
-            this.thisRoom.howWasWon = "Mission fails.";
-            this.thisRoom.finishGame('Spy');
-        } else if (numOfSucceeds >= 3) {
-            this.thisRoom.winner = 'Resistance';
-            this.thisRoom.howWasWon = "Mission successes";
-            this.thisRoom.finishGame('Resistance');
-        }
-        // If the game goes on
-        else {
-            this.thisRoom.missionNum++;
-            this.thisRoom.pickNum = 1;
-
-            this.thisRoom.teamLeader--;
-            if (this.thisRoom.teamLeader < 0) {
-                this.thisRoom.teamLeader = this.thisRoom.playersInGame.length - 1;
-            }
-
-            this.thisRoom.hammer = ((this.thisRoom.teamLeader - 5 + 1 + this.thisRoom.playersInGame.length) % this.thisRoom.playersInGame.length);
-            this.thisRoom.phase = 'pickingTeam';
-        }
-        this.thisRoom.requireSave = true;
+      this.resolveVotes();
     }
+};
+
+
+VotingMission.prototype.resolveVotes = function (msg="") {
+  const outcome = this.thisRoom.calcMissionVotes(this.thisRoom.missionVotes);
+  if (outcome) {
+      this.thisRoom.missionHistory.push(outcome);
+  } else {
+      console.log(`ERROR! Outcome was: ${outcome}`);
+  }
+
+  const numOfVotedFails = countFails(this.thisRoom.missionVotes);
+  this.thisRoom.numFailsHistory.push(numOfVotedFails);
+
+  // for the gameplay message
+  if (outcome === 'succeeded') {
+      if (numOfVotedFails === 0) {
+          this.thisRoom.sendText(this.thisRoom.allSockets, `Mission ${this.thisRoom.missionNum} succeeded${msg}.`, 'gameplay-text-blue');
+      } else {
+          this.thisRoom.sendText(this.thisRoom.allSockets, `Mission ${this.thisRoom.missionNum} succeeded, but with ${numOfVotedFails} fail.`, 'gameplay-text-blue');
+      }
+  } else if (outcome === 'failed') {
+      if (numOfVotedFails === 1) {
+          this.thisRoom.sendText(this.thisRoom.allSockets, `Mission ${this.thisRoom.missionNum} failed with ${numOfVotedFails} fail${msg}.`, 'gameplay-text-red');
+      } else {
+          this.thisRoom.sendText(this.thisRoom.allSockets, `Mission ${this.thisRoom.missionNum} failed with ${numOfVotedFails} fails${msg}.`, 'gameplay-text-red');
+      }
+  }
+
+
+  // if we get all the votes in, then do this.thisRoom
+  this.thisRoom.lastProposedTeam = this.thisRoom.proposedTeam;
+  this.thisRoom.proposedTeam = [];
+  this.thisRoom.missionVotes = [];
+
+  // count number of succeeds and fails
+  let numOfSucceeds = 0;
+  let numOfFails = 0;
+  for (var i = 0; i < this.thisRoom.missionHistory.length; i++) {
+      if (this.thisRoom.missionHistory[i] === 'succeeded') {
+          numOfSucceeds++;
+      } else if (this.thisRoom.missionHistory[i] === 'failed') {
+          numOfFails++;
+      }
+  }
+
+
+  // game over if more than 3 fails or successes
+  if (numOfFails >= 3) {
+      this.thisRoom.winner = 'Spy';
+      this.thisRoom.howWasWon = "Mission fails.";
+      this.thisRoom.finishGame('Spy');
+  } else if (numOfSucceeds >= 3) {
+      this.thisRoom.winner = 'Resistance';
+      this.thisRoom.howWasWon = "Mission successes";
+      this.thisRoom.finishGame('Resistance');
+  }
+  // If the game goes on
+  else {
+      this.thisRoom.missionNum++;
+      this.thisRoom.pickNum = 1;
+
+      this.thisRoom.teamLeader--;
+      if (this.thisRoom.teamLeader < 0) {
+          this.thisRoom.teamLeader = this.thisRoom.playersInGame.length - 1;
+      }
+
+      this.thisRoom.hammer = ((this.thisRoom.teamLeader - 5 + 1 + this.thisRoom.playersInGame.length) % this.thisRoom.playersInGame.length);
+      this.thisRoom.phase = 'pickingTeam';
+  }
+  this.thisRoom.requireSave = true;
 };
 
 

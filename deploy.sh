@@ -40,10 +40,9 @@ sshpass -p ${ssh_password} ssh -4 -tt ${IP_ADDR} "
     git clone $REMOTE_URL
   fi
   cd ProAvalon
-  git fetch
   git reset --hard origin/master
+  git pull
   git checkout ${branchname}
-  git reset --hard origin/${branchname}
   sed -i 's/WorkingDirectory=.../WorkingDirectory=${DEPLOY_FOLDER//\//\\\/}\/ProAvalon/g' proavalon.service
   if [ ! -f /lib/systemd/system/proavalon.service ] || ! cmp -s proavalon.service /lib/systemd/system/proavalon.service; then
     echo ${ssh_password} | sudo cp ./proavalon.service /lib/systemd/system/

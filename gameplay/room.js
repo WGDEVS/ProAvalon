@@ -5,7 +5,7 @@ const gameModeNames = [];
 const fs = require('fs');
 
 fs.readdirSync('./gameplay/').filter((file) => {
-    if (fs.statSync(`${'./gameplay' + '/'}${file}`).isDirectory() === true && file !== 'commonPhases') {
+    if (fs.statSync(`${'./gameplay' + '/'}${file}`).isDirectory() === true && file !== 'commonPhases' && file !== 'houserules') {
         gameModeNames.push(file);
     }
 });
@@ -17,6 +17,7 @@ for (let i = 0; i < gameModeNames.length; i++) {
     gameModeObj[gameModeNames[i]].Roles = require(`./${gameModeNames[i]}/indexRoles`);
     gameModeObj[gameModeNames[i]].Phases = require(`./${gameModeNames[i]}/indexPhases`);
     gameModeObj[gameModeNames[i]].Cards = require(`./${gameModeNames[i]}/indexCards`);
+    gameModeObj[gameModeNames[i]].Houserules = require(`./indexHouserules`);
 }
 
 const commonPhasesIndex = require('./indexCommonPhases');
@@ -63,6 +64,7 @@ function Room(host_, roomId_, io_, maxNumPlayers_, newRoomPassword_, gameMode_) 
     this.specialRoles = (new gameModeObj[this.gameMode].Roles()).getRoles(thisRoom);
     this.specialPhases = (new gameModeObj[this.gameMode].Phases()).getPhases(thisRoom);
     this.specialCards = (new gameModeObj[this.gameMode].Cards()).getCards(thisRoom);
+    this.specialHouserules = (new gameModeObj[this.gameMode].Houserules()).getHouserules(thisRoom);
 
     // timeout object for game closing
     this.destroyTimeoutObj;
@@ -403,6 +405,7 @@ Room.prototype.updateGameModesInRoom = function (socket, gameMode) {
         this.specialRoles = (new gameModeObj[this.gameMode].Roles()).getRoles(this);
         this.specialPhases = (new gameModeObj[this.gameMode].Phases()).getPhases(this);
         this.specialCards = (new gameModeObj[this.gameMode].Cards()).getCards(this);
+        this.specialHouserules = (new gameModeObj[this.gameMode].Houserules()).getHouserules(this);
 
         // Send the data to all sockets within the room.
         for (let i = 0; i < this.allSockets.length; i++) {
@@ -424,6 +427,9 @@ Room.prototype.sendOutGameModesInRoomToSocket = function (targetSocket) {
     const cardNames = [];
     const cardDescriptions = [];
     const cardPriorities = [];
+    const houseruleNames = [];
+    const houseruleDescriptions = [];
+    const houserulePriorities = [];
 
     const skipRoles = ['Resistance', 'Spy'];
 
@@ -457,6 +463,18 @@ Room.prototype.sendOutGameModesInRoomToSocket = function (targetSocket) {
         }
     }
 
+    for (var key in this.specialHouserules) {
+        if (this.specialHouserules.hasOwnProperty(key) === true) {
+            houseruleNames.push(this.specialHouserules[key].houserule);
+            houseruleDescriptions.push(this.specialHouserules[key].description);
+            if (!this.specialHouserules[key].orderPriorityInOptions) {
+                houserulePriorities.push(0);
+            } else {
+                houserulePriorities.push(this.specialHouserules[key].orderPriorityInOptions);
+            }
+        }
+    }
+
     const obj = {
         // Todo: Send over the roles/cards in the gamemode. Upon changing gamemode, resend.
         gameModes: gameModeNames,
@@ -470,6 +488,11 @@ Room.prototype.sendOutGameModesInRoomToSocket = function (targetSocket) {
             cardNames,
             descriptions: cardDescriptions,
             orderPriorities: cardPriorities,
+        },
+        houserules: {
+           houseruleNames,
+           descriptions: houseruleDescriptions,
+           orderPriorities: houserulePriorities,
         },
     };
 

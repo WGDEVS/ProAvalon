@@ -1,7 +1,7 @@
 
 // all in lower case
 const adminsArray = [
-    'pronub',
+    'avalonadmin1',
 ];
 
 module.exports = adminsArray;

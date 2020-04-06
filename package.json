@@ -23,7 +23,7 @@
     "express-rate-limit": "^5.0.0",
     "express-session": "^1.15.6",
     "linkifyjs": "^2.1.7",
-    "mailgun-js": "^0.22.0",
+    "sendmail": "^1.6.1",
     "method-override": "^3.0.0",
     "moment": "^2.24.0",
     "mongoose": "^5.0.1",

@@ -2590,7 +2590,7 @@ function socketCallback(action, room) {
     }
     if (action === 'updateCurrentGamesList') {
         updateCurrentGamesList();
-    }  
+    }
     if (action === "updateCurrentPlayersList") {
         updateCurrentPlayersList();
     }
@@ -2645,7 +2645,7 @@ var assignRatingBracket = function (socket) {
     const diamondBase = 1800;
     const championBase = 1900;
 
-    if (socket.request.user.totalRankedGamesPlayed < provisionalGames) {
+    if (socket.request.user.totalRankedGamesPlayed < 1) { // < provisionalGames) { // Changed for private server
         socket.request.user.ratingBracket = 'unranked';
         socket.request.ratingBadge = `<span class='badge' data-toggle='tooltip' data-placement='right' title='Unranked' style='transform: scale(0.9) translateY(-9%); background-color: #a9a9a9'>?</span>`
     }
@@ -2678,6 +2678,11 @@ var assignRatingBracket = function (socket) {
         socket.request.ratingBadge = `<span class='badge' data-toggle='tooltip' data-placement='right' title='Champion' style='transform: scale(0.9) translateY(-9%); background-color: #9370db'>C</span>`
     }
 
+    if (socket.request.user.totalRankedGamesPlayed < provisionalGames) {
+      // Changed for private server: set ratingBracket to unranked for elo calculation but still give badges
+      socket.request.user.ratingBracket = 'unranked';
+    }
+
     // If the rating bracket changes, update the database entry.
     if (socket.request.user.ratingBracket != beforeBracket) {
         User.findOne({ username: socket.request.user.username }).populate('notifications').exec((err, foundUser) => {
@@ -2689,7 +2694,7 @@ var assignRatingBracket = function (socket) {
     }
 
     return socket;
-} 
+}
 
 var updateCurrentPlayersList = function () {
     // 2D array of usernames, elo pairs and rating brackets, sorted in order of elo rating
@@ -2704,7 +2709,7 @@ var updateCurrentPlayersList = function () {
     playerList.sort((a, b) => {
         return (a.playerRating < b.playerRating) ? 1 : (a.playerRating > b.playerRating) ? -1 : 0
     });
-    
+
     allSockets.forEach((sock) => {
         sock.emit('update-current-players-list', playerList);
     });

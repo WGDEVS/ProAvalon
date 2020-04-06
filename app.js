@@ -65,6 +65,8 @@ process.on('unhandledRejection', (reason, p) => {
     // application specific logging, throwing an error, or other logic here
 });
 
+// changed for private server: deployed behind nginx
+app.enable("trust proxy"); // only if you're behind a reverse proxy (Heroku, Bluemix, AWS ELB, Nginx, etc)
 
 // authentication
 const secretKey = process.env.MY_SECRET_KEY || 'MySecretKey';
@@ -112,7 +114,7 @@ app.use(methodOverride('_method'));
 
 
 // Insert ban checks here.
-// TODO 
+// TODO
 
 app.use(indexRoutes);
 

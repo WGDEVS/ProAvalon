@@ -1,7 +1,5 @@
-const api_key = process.env.MAILGUN_API_KEY;
-const domain = process.env.PROAVALON_EMAIL_ADDRESS_DOMAIN;
 const server_domain = process.env.SERVER_DOMAIN;
-const mailgun = require('mailgun-js')({apiKey: api_key, domain: domain});
+const sendmail = require('sendmail')();
 const uuidv4 = require('uuid/v4')
 
 module.exports.sendEmailVerification = (user, email) => {
@@ -38,12 +36,12 @@ module.exports.sendEmailVerification = (user, email) => {
             a {
               box-sizing: border-box;
             }
-            
+
             img {
               -ms-interpolation-mode: bicubic;
               max-width: 100%;
             }
-            
+
             body {
               font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
               -webkit-font-smoothing: antialiased;
@@ -56,7 +54,7 @@ module.exports.sendEmailVerification = (user, email) => {
               -webkit-text-size-adjust: 100%;
               width: 100% !important;
             }
-            
+
             /* Let's make sure all tables have defaults */
             table {
               -premailer-width: 100%;
@@ -71,14 +69,14 @@ module.exports.sendEmailVerification = (user, email) => {
               mso-table-lspace: 0pt;
               mso-table-rspace: 0pt;
             }
-            
+
             /* -------------------------------------
                 BODY & CONTAINER
             ------------------------------------- */
             body {
               background-color: #f6f6f6;
             }
-            
+
             .body {
               background-color: #f6f6f6;
               border-spacing: 0;
@@ -88,7 +86,7 @@ module.exports.sendEmailVerification = (user, email) => {
               -premailer-cellpadding: 0;
               -premailer-cellspacing: 0;
             }
-            
+
             /* Set a max-width, and make it display as block so it will automatically stretch to that width, but will also shrink down on a phone or something */
             .container {
               display: block;
@@ -100,7 +98,7 @@ module.exports.sendEmailVerification = (user, email) => {
               width: auto !important;
               width: 580px;
             }
-            
+
             /* This should also be a block element, so that it will fill 100% of the .container */
             .content {
               display: block;
@@ -109,7 +107,7 @@ module.exports.sendEmailVerification = (user, email) => {
               padding: 10px;
               text-align: left;
             }
-            
+
             /* -------------------------------------
                 HEADER, FOOTER, MAIN
             ------------------------------------- */
@@ -120,21 +118,21 @@ module.exports.sendEmailVerification = (user, email) => {
               border-spacing: 0;
               width: 100%;
             }
-            
+
             .wrapper {
               padding: 30px;
             }
-            
+
             .content-block {
               padding: 0 0 30px;
             }
-            
+
             .header {
               margin-bottom: 30px;
               margin-top: 20px;
               width: 100%;
             }
-            
+
             .footer {
               clear: both;
               width: 100%;
@@ -146,7 +144,7 @@ module.exports.sendEmailVerification = (user, email) => {
             .footer td {
               padding: 20px 0;
             }
-            
+
             /* -------------------------------------
                 TYPOGRAPHY
             ------------------------------------- */
@@ -160,31 +158,31 @@ module.exports.sendEmailVerification = (user, email) => {
               margin: 0;
               margin-bottom: 30px;
             }
-            
+
             h1 {
               font-size: 38px;
               text-transform: capitalize;
               font-weight: 300;
             }
-            
+
             h2 {
               font-size: 24px;
               margin-bottom: 10px;
             }
-            
+
             p + h2 {
               margin-top: 30px;
             }
-            
+
             h3 {
               font-size: 18px;
             }
-            
+
             h4 {
               font-size: 14px;
               font-weight: 500;
             }
-            
+
             p,
             ul,
             ol,
@@ -194,7 +192,7 @@ module.exports.sendEmailVerification = (user, email) => {
               font-weight: normal;
               margin: 0;
             }
-            
+
             p,
             ul,
             ol {
@@ -208,13 +206,13 @@ module.exports.sendEmailVerification = (user, email) => {
               margin-left: 15px;
               margin-bottom: 15px;
             }
-            
+
             a {
               color: #348eda;
               font-weight: bold;
               text-decoration: underline;
             }
-            
+
             /* -------------------------------------
                 BUTTONS
             ------------------------------------- */
@@ -242,7 +240,7 @@ module.exports.sendEmailVerification = (user, email) => {
               text-decoration: none;
               text-transform: capitalize;
             }
-            
+
             .btn-primary td {
               background-color: #348eda;
             }
@@ -251,42 +249,42 @@ module.exports.sendEmailVerification = (user, email) => {
               border-color: #348eda;
               color: #fff;
             }
-            
+
             /* -------------------------------------
                 OTHER STYLES THAT MIGHT BE USEFUL
             ------------------------------------- */
             .last {
               margin-bottom: 0;
             }
-            
+
             .first {
               margin-top: 0;
             }
-            
+
             .align-center {
               text-align: center;
             }
-            
+
             .align-right {
               text-align: right;
             }
-            
+
             .align-left {
               text-align: left;
             }
-            
+
             .clear {
               clear: both;
             }
-            
+
             .mt0 {
               margin-top: 0;
             }
-            
+
             .mb0 {
               margin-bottom: 0;
             }
-            
+
             .preheader {
               color: transparent;
               display: none;
@@ -299,7 +297,7 @@ module.exports.sendEmailVerification = (user, email) => {
               visibility: hidden;
               width: 0;
             }
-            
+
             /* -------------------------------------
                 ALERTS
             ------------------------------------- */
@@ -333,7 +331,7 @@ module.exports.sendEmailVerification = (user, email) => {
               color: #fff !important;
               text-decoration: none !important;
             }
-            
+
             /* -------------------------------------
                 TABLES
             ------------------------------------- */
@@ -380,7 +378,7 @@ module.exports.sendEmailVerification = (user, email) => {
               color: #aaa;
               text-align: center;
             }
-            
+
             @media only screen and (max-width: 620px) {
               table[class=body] .data-table tr,
               table[class=body] .data-table td {
@@ -394,7 +392,7 @@ module.exports.sendEmailVerification = (user, email) => {
                 border-bottom: 0;
               }
             }
-            
+
             /* -------------------------------------
                 RESPONSIVE AND MOBILE FRIENDLY STYLES
             ------------------------------------- */
@@ -434,7 +432,7 @@ module.exports.sendEmailVerification = (user, email) => {
                 width: 100% !important;
               }
             }
-            
+
             /*# sourceMappingURL=main.css.map */
         </style>
     </head>
@@ -453,7 +451,7 @@ module.exports.sendEmailVerification = (user, email) => {
             <p>Hey!</p></br>
             <p>Great to see you here! Please confirm your email address by clicking on the link below.
             Your email address will not be shared with anyone else.</p></br>
-            <p><a href="http://${server_domain}/emailVerification/verifyEmailRequest?token=${token}">http://${server_domain}/emailVerification/verifyEmailRequest?token=${token}</a></p>
+            <p><a href="https://${server_domain}/emailVerification/verifyEmailRequest?token=${token}">https://${server_domain}/emailVerification/verifyEmailRequest?token=${token}</a></p>
             <p>If you did not sign up for a ProAvalon account please disregard this email.</p>
             <p>
               Enjoy!
@@ -477,7 +475,7 @@ module.exports.sendEmailVerification = (user, email) => {
 
 
     const data = {
-        from: 'ProAvalon <' + process.env.PROAVALON_EMAIL_ADDRESS + '>',
+        from: 'ProAvalon no-reply@' + server_domain,
         to: user.emailAddress,
         subject: 'Welcome! Please verify your email address',
         html: message
@@ -486,19 +484,21 @@ module.exports.sendEmailVerification = (user, email) => {
     user.emailToken = token;
     user.markModified("emailToken");
     user.save();
-    
-    mailgun.messages().send(data, function (error, body) {
-        console.log(body);
+
+    // TODO: we don't actually know if sendmail actually works, this is probably only run if process.env.MY_PLATFORM = 'online'
+    sendmail(data, function(err, reply) {
+      console.log("sendmail: " + str(reply) + " " + str(err && err.stack));
     });
 }
 
-const disposableEmails = require('../util/disposableEmails.js');
+// const disposableEmails = require('../util/disposableEmails.js');
 
 module.exports.isThrowawayEmail = (email) => {
-    if (disposableEmails.indexOf(email.split('@')[1]) !== -1) {
-        return true;
-    }
-    else {
-        return false;
-    }
+    return false; // I don't care ...
+    // if (disposableEmails.indexOf(email.split('@')[1]) !== -1) {
+    //     return true;
+    // }
+    // else {
+    //     return false;
+    //}
 }

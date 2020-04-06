@@ -11,7 +11,7 @@ const myNotification = require('../models/notification');
 const gameRecord = require('../models/gameRecord');
 const statsCumulative = require('../models/statsCumulative');
 
-const { isMod } = require('./middleware');
+const { isMod, isLoggedIn } = require('./middleware');
 
 const { validEmail, emailExists } = require('../routes/emailVerification');
 const { sendEmailVerification } = require('../myFunctions/sendEmailVerification');
@@ -26,10 +26,17 @@ const router = new Router();
 // exclude pronub from new mods array
 const newModsArray = modsArray.filter((mod) => mod != 'pronub');
 // Community route
-router.get('/community', (req, res) => {
+router.get('/community', isLoggedIn, (req, res) => {
+    // changed for private server: need to play some games before viewing community page
+    if (!res.locals.currentUser || (!modsArray.includes(req.user.username.toLowerCase()) && res.locals.currentUser.totalGamesPlayed < 3)) {
+      req.flash('error', "You don't have permission to view community page. Please play more games.");
+      res.redirect('back');
+      return;
+    }
+
     // Get all players with more than 50 games excluding mods
     User.find({
-        totalGamesPlayed: { $gt: 99 },
+        totalGamesPlayed: { $gt: -1 }, // changed for private server
         usernameLower: { $nin: newModsArray },
         hideStats: null,
     }, (err, allUsers) => {
@@ -57,7 +64,7 @@ router.get('/community', (req, res) => {
                                 }
                             }
                             if (modData !== undefined) {
-                                allMods = [modData, ...allMods.filter(user => user !== modData)];  
+                                allMods = [modData, ...allMods.filter(user => user !== modData)];
                             }
                         }
 
@@ -148,19 +155,19 @@ router.post('/', registerLimiter, sanitiseUsername, sanitiseEmail, async (req, r
     if (req.body.username.indexOf(' ') !== -1) {
         req.flash('error', 'Sign up failed. Please do not use spaces in your username.');
         res.redirect('register');
-    } 
+    }
     else if (req.body.username.length > 25) {
         req.flash('error', 'Sign up failed. Please do not use more than 25 characters in your username.');
         res.redirect('register');
-    } 
+    }
     else if (usernameContainsBadCharacter(req.body.username) === true) {
         req.flash('error', 'Please do not use an illegal character.');
         res.redirect('register');
-    } 
+    }
     else if (validEmail(req.body.emailAddress) === false) {
         req.flash('error', 'Please provide a valid email address.');
         res.redirect('register');
-    } 
+    }
     else if (await emailExists(req.body.emailAddress)) {
         console.log(req.body.emailAddress);
         console.log("In email exists... is true")
@@ -346,7 +353,7 @@ const anonymizeStats = function (records) {
         const record = records[key];
         const anonymizedRecord = JSON.parse(JSON.stringify(record));
         const usernamesMap = {};
-        const usernamesPossible = 'abcdefghijklmnopqrstuvwxyz'; 
+        const usernamesPossible = 'abcdefghijklmnopqrstuvwxyz';
         let idx = 0;
         for (var key in record.playerRoles) {
             if (record.playerRoles.hasOwnProperty(key)) {
@@ -380,7 +387,7 @@ const hardUpdateStatsFunction = function () {
 const processRecords = async function (records) {
     const numOfRecords = await gameRecord.countDocuments();
     const recordsPerLoop = 100;
-    
+
     // Delete the current gamerecord json files.
     try {
         fs.unlinkSync('assets/gameRecordsData/gameRecordsDataAnon.json');
@@ -404,7 +411,7 @@ const processRecords = async function (records) {
     const obj = {};
     //* *********************************************
     // Site traffic stats - one data point per day
-    //* ********************************************* 
+    //* *********************************************
     const gamesPlayedData = {};
     const xAxisVars = [];
     const yAxisVars = [];
@@ -476,16 +483,16 @@ const processRecords = async function (records) {
         // TODO fs.writeFileSync('assets/gameRecordsData/gameRecordsData.json', JSON.stringify(records));
         // Filter out the bot games
         records = records.filter((r) => (r.gameMode === undefined || r.gameMode.toLowerCase().includes('bot') == false));
-        
+
         // Keep track of number of bot games
         numBotGames += prevRecordsLength - records.length;
-    
+
         // Anonymize it using gameRecordsData
         const gameRecordsDataAnon = anonymizeStats(records);
-        
+
         // Write out to anon stream
         anonStream.write(JSON.stringify(gameRecordsDataAnon));
-    
+
 
         //* *********************************************
         // Site traffic stats - one data point per day
@@ -494,7 +501,7 @@ const processRecords = async function (records) {
             const timeFinish = records[i].timeGameFinished;
             // Round to nearest day
             const dayFinished = new Date(timeFinish.getFullYear(), timeFinish.getMonth(), timeFinish.getDate());
-    
+
             // Count the number of games played on the same day
             if (gamesPlayedData[dayFinished.getTime()] === undefined) {
                 gamesPlayedData[dayFinished.getTime()] = 1;
@@ -502,7 +509,7 @@ const processRecords = async function (records) {
                 gamesPlayedData[dayFinished.getTime()] = gamesPlayedData[dayFinished.getTime()] + 1;
             }
         }
-    
+
         //* *********************************************
         // Getting the average duration of each game
         //* *********************************************
@@ -510,8 +517,8 @@ const processRecords = async function (records) {
             var duration = new Date(records[i].timeGameFinished.getTime() - records[i].timeGameStarted.getTime());
             averageGameDuration = new Date(averageGameDuration.getTime() + duration.getTime());
         }
-    
-    
+
+
         //* *********************************************
         // Getting the win rate of alliances globally
         //* *********************************************
@@ -522,7 +529,7 @@ const processRecords = async function (records) {
                 spyWins++;
             }
         }
-    
+
         //* *********************************************
         // Getting the assassination win rate
         //* *********************************************
@@ -537,8 +544,8 @@ const processRecords = async function (records) {
                     rolesShotObj[roleShot] = 1;
                 }
             }
-        }    
-    
+        }
+
         //* *********************************************
         // Getting the average duration of each assassination
         //* *********************************************
@@ -549,17 +556,17 @@ const processRecords = async function (records) {
                 count++;
             }
         }
-    
+
         //* *********************************************
         // Getting the win rate for each game size
-        //* *********************************************    
+        //* *********************************************
         for (var i = 0; i < records.length; i++) {
             if (!gameSizeWins[records[i].numberOfPlayers]) {
                 gameSizeWins[records[i].numberOfPlayers] = {};
                 gameSizeWins[records[i].numberOfPlayers].spy = 0;
                 gameSizeWins[records[i].numberOfPlayers].res = 0;
             }
-    
+
             if (records[i].winningTeam === 'Spy') {
                 gameSizeWins[records[i].numberOfPlayers].spy++;
             } else if (records[i].winningTeam === 'Resistance') {
@@ -568,7 +575,7 @@ const processRecords = async function (records) {
                 console.log(`error, winning team not recognised: ${records[i].winningTeam}`);
             }
         }
-    
+
         //* *********************************************
         // Getting the spy wins breakdown
         //* *********************************************
@@ -577,14 +584,14 @@ const processRecords = async function (records) {
                 if (!spyWinBreakdown[records[i].howTheGameWasWon]) {
                     spyWinBreakdown[records[i].howTheGameWasWon] = 0;
                 }
-    
+
                 spyWinBreakdown[records[i].howTheGameWasWon]++;
             }
         }
-    
+
         //* *********************************************
         // Getting the Lady of the lake wins breakdown
-        //* *********************************************    
+        //* *********************************************
         for (var i = 0; i < records.length; i++) {
             if (records[i].ladyChain.length > 0) {
                 // if the first person who held the card is a res
@@ -607,7 +614,7 @@ const processRecords = async function (records) {
                 }
             }
         }
-    
+
         //* *********************************************
         // Getting the average duration of each game
         //* *********************************************
@@ -623,7 +630,7 @@ const processRecords = async function (records) {
     // Post data gathering
 
     obj.totalgamesplayed = numOfRecords - numBotGames;
-    
+
     //* *********************************************
     // Site traffic stats - one data point per day
     //* *********************************************
@@ -686,7 +693,7 @@ const processRecords = async function (records) {
 
     //* *********************************************
     // Getting the Lady of the lake wins breakdown
-    //* *********************************************    
+    //* *********************************************
     obj.ladyBreakdown = ladyBreakdown;
 
     //* *********************************************
@@ -704,7 +711,7 @@ const processRecords = async function (records) {
     clientStatsData = obj;
 
     console.log('Done processing, now saving.');
-    
+
     statsCumulative.remove({}, (err) => {
         if (err) {
             console.log(err);

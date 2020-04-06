@@ -100,7 +100,7 @@ After a pull request has been merged to master, it will be on the development se
 
 User authentication is handled by Passport.js and client-server communication is handled by Socket.io. They are combined by [passport.socketio](https://www.npmjs.com/package/passport.socketio).
 
-The server is run from `app.js`. 
+The server is run from `app.js`.
 
 Routes are all under the `routes` folder. `index.js` is the upper most layer (most broad).
 
@@ -110,9 +110,9 @@ All scripts and stylesheets are under the assets folder.`lobby.ejs` is perhaps t
 
 There is a server-wide cache of 30 minutes for all files. This helps cut down on data usage, while also solving the issue of certain iPhone devices "flashing" every game iteration (the browser would re-download each image every time before caching was introduced).
 
-There is also a `middleware` folder which contains useful functions mainly for authentication purposes on forums and profiles. 
+There is also a `middleware` folder which contains useful functions mainly for authentication purposes on forums and profiles.
 
-Other useful global functions can be found under the `myFunctions` folder. 
+Other useful global functions can be found under the `myFunctions` folder.
 
 
 ## Contributing

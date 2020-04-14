@@ -64,6 +64,10 @@ class SimpleBotSocket {
 
         // Progressively remove players until it is the right length
         const selectedPlayers = availablePlayers.slice();
+        if (Array.isArray(numOfTargets)) {
+          // handle numOfTargets = [1,2] for assassinating merlin xor Tristan & Isolde
+          numOfTargets = numOfTargets[Math.floor(Math.random() * numOfTargets.length), 1];
+        }
         while (selectedPlayers.length > numOfTargets) {
             selectedPlayers.splice(Math.floor(Math.random() * selectedPlayers.length), 1);
         }

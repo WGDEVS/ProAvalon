@@ -15,6 +15,7 @@ module.exports = {
     nationality: '',
     timeZone: '',
     biography: '',
+    nickname: '',
 
     roleStats: {
         '5p': {

@@ -62,7 +62,8 @@ const gameModeNames = [];
 fs.readdirSync('./gameplay/').filter((file) => {
   if (
     fs.statSync(`${'./gameplay' + '/'}${file}`).isDirectory() === true &&
-    file !== 'commonPhases'
+    file !== 'commonPhases' &&
+    file !== 'houserules'
   ) {
     gameModeNames.push(file);
   }

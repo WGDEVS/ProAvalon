@@ -1,0 +1,10 @@
+
+function /* TODO: Name of Card*/(thisRoom_) {
+    this.thisRoom = thisRoom_;
+
+    this.specialPhase = /* TODO: If there is a special phase attached to the role e.g. Lady of the Lake has lady*/;
+
+    this.houserule = "/* TODO: Name of houserule (Note first letter is usually capitalised)*/";
+};
+
+module.exports = /* TODO: Name of Card*/;

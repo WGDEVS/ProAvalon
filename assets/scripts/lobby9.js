@@ -904,7 +904,7 @@ function strOfAvatar(playerData, alliance) {
     let hammerStar = '';
     // console.log(playerData.username);
     // console.log(ctx.font);
-    const nameWid = ctx.measureText(playerData.username).width;
+    const nameWid = ctx.measureText(generateDisplayName(playerData, true)).width;
     // console.log(nameWid);
 
 
@@ -965,10 +965,26 @@ function strOfAvatar(playerData, alliance) {
 
 
     str += `<img class='avatarImgInRoom' src='${picLink}'>`;
-    str += `${"<p class='username-p' style='white-space:nowrap; position:relative;'>" + ' '}${playerData.username} ${hammerStar} </p>${role}</div>`;
+    str += `${"<p class='username-p' style='white-space:nowrap; position:relative;'>" + ' '}${generateDisplayName(playerData, false)} ${hammerStar} </p>${role}</div>`;
 
 
     return str;
+}
+
+function generateDisplayName(playerData, measure) {
+  var displayName = playerData.username || '';
+  if (playerData.nickname != null && playerData.nickname.length > 0) {
+    if (measure) {
+      displayName += ' '
+    } else {
+      displayName += '&thinsp;'
+    }
+    displayName += `(${playerData.nickname})`;
+    if (measure) {
+      displayName = $('<span>' + displayName + '</span>').text();
+    }
+  }
+  return displayName;
 }
 
 function changeView() {

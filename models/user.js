@@ -9,9 +9,9 @@ const UserSchema = new mongoose.Schema({
     usernameLower: String,
     password: {
         type: String,
-        // Not sure exactly how passportjs handles this, 
+        // Not sure exactly how passportjs handles this,
         // but we don't give this parameter to Mongoose when creating.
-        // required: true, 
+        // required: true,
     },
 
     emailAddress: String,
@@ -19,7 +19,7 @@ const UserSchema = new mongoose.Schema({
         type: Boolean,
         default: false
     },
-    // I've decided it is ok to not have these email tokens expire. 
+    // I've decided it is ok to not have these email tokens expire.
     emailToken: String,
 
     avatarImgRes: {
@@ -35,7 +35,7 @@ const UserSchema = new mongoose.Schema({
     hideStats: Boolean,
 
     dateJoined: Date,
-    
+
     totalTimePlayed: {
         type: Date,
         default: 0,
@@ -95,6 +95,10 @@ const UserSchema = new mongoose.Schema({
         default: '',
     },
     biography: {
+        type: String,
+        default: '',
+    },
+    nickname: {
         type: String,
         default: '',
     },

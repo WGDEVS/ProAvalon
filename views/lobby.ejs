@@ -36,7 +36,7 @@
 				<br>
 				<br>
 
-				<table id="current-games-table" class="table table-bordered table-striped lobby-table">	
+				<table id="current-games-table" class="table table-bordered table-striped lobby-table">
 					<tbody>
 
 					</tbody>
@@ -45,7 +45,7 @@
 				<br>
 				<p><strong>Online players (<span class="player-count"></span>):</strong></p>
 
-				<table id="current-players-table" class="table table-bordered table-striped lobby-table">	
+				<table id="current-players-table" class="table table-bordered table-striped lobby-table">
 					<tbody>
 
 					</tbody>
@@ -98,10 +98,10 @@
 			</div>
 		</div>
 		<div id="div2Resize">
-			
+
 
 		<div class="myHr"></div>
-			
+
 
 
 			<div id="statusBarWell" class="center-div well well-sm">
@@ -123,7 +123,7 @@
 
 			</div>
 
-			
+
 			<div id="tabContainerBig">
 				<div id="tabs1" class="">
 					<ul class="nav nav-tabs">
@@ -169,7 +169,7 @@
                                 <br>
 
                                 <span class="cardHistoryClass">
-                                
+
                                 </span>
 
                                 <br>
@@ -200,15 +200,15 @@
 
 								<br>
 								<br>
-								
-							
+
+
 								<button id="playerHighlightColourButton">Click to change highlight colour</button>
 								<script>
 									$("#playerHighlightColourButton").on("click", function(){
 										$("#playerHighlightColourBoxes").toggleClass("hidden");
 									});
 								</script>
-								
+
 								<span id="playerHighlightColourBoxes" class="hidden">
 									<h5>0 starts at the top, and increases anti-clockwise.</h5>
 
@@ -247,28 +247,28 @@
 								<button id="removeHighlight" onclick="unhighlightAllChat()">Unhighlight all chat</button>
 								<br>
 								<br>
-								
+
 								<br>
-								
+
 								<strong><p>Spectators:</p></strong>
 
-								<table id="spectators-table" class="table table-bordered table-striped lobby-table">	
+								<table id="spectators-table" class="table table-bordered table-striped lobby-table">
 									<tbody>
 
 									</tbody>
 								</table>
 
 								<p><strong>Online players (<span class="player-count"></span>):</strong></p>
-								<table id="current-players-table" class="table table-bordered table-striped lobby-table">	
+								<table id="current-players-table" class="table table-bordered table-striped lobby-table">
 									<tbody>
 
 									</tbody>
 								</table>
-							
+
 							</div>
 
 						</div>
-						
+
 					</div>
 				</div>
 
@@ -318,7 +318,7 @@
                                 <br>
 
                                 <span class="cardHistoryClass">
-                                
+
                                 </span>
 
                                 <br>
@@ -355,7 +355,7 @@
 										$("#playerHighlightColourBoxes2").toggleClass("hidden");
 									});
 								</script>
-								
+
 								<span id="playerHighlightColourBoxes2" class="hidden">
 									<h5>0 starts at the top, and increases anti-clockwise.</h5>
 
@@ -389,29 +389,29 @@
 									Player 9: <button id="player9HighlightColour2" class="jscolor {valueElement:null,value:'66ccff', width:101, padding:0, shadow:false,
 									borderWidth:0, backgroundColor:'transparent', insetColor:'#000', onFineChange:'update(this)', playerColourID:'9'}" style="width:20px; height:20px;"></button>
 								</span>
-								
+
 								<br>
 								<br>
 								<button id="removeHighlight2" onclick="unhighlightAllChat()">Unhighlight all chat</button>
 								<br>
 								<br>
 								<br>
-								
+
 								<strong><p>Spectators:</p></strong>
 
-								<table id="spectators-table" class="table table-bordered table-striped lobby-table">	
+								<table id="spectators-table" class="table table-bordered table-striped lobby-table">
 									<tbody>
 
 									</tbody>
 								</table>
 
 								<p><strong>Online players (<span class="player-count"></span>):</strong></p>
-								<table id="current-players-table" class="table table-bordered table-striped lobby-table">	
+								<table id="current-players-table" class="table table-bordered table-striped lobby-table">
 									<tbody>
 
 									</tbody>
 								</table>
-							
+
 							</div>
 
 						</div>
@@ -441,7 +441,10 @@
 				</div>
 				<div class="modal-body">
 					<h4>Select the roles/items you would like in the game.</h4>
-					<h6>Default roles have been pre-selected.</h6>
+					<h6>Default roles have been pre-selected. Reset default roles:
+						<input type="button" class="resetDefaultRoleButton" value="site default"></input>
+						<input type="button" class="resetDefaultRoleButton" value="houserules1"></input>
+					</h6>
 
 					<label>Game mode:</label>
 					<select class="gameModeSelect" name="gameMode">
@@ -505,7 +508,7 @@
 				</div>
 				<div class="modal-body" id="kickModalContent">
 
-					
+
 
 				</div>
 				<div class="modal-footer">
@@ -530,7 +533,7 @@
 					<button type="button" class="close" data-dismiss="modal">&times;</button>
 					<h2 class="modal-title" style="color: red; font-weight: 700;">Ban menu</h2>
 				</div>
-				
+
 				<div style="width: 75%; margin: auto;">
 				<br>
 					<form action="/mod/ban" method="POST" id="modactionform">
@@ -577,7 +580,7 @@
 								</select>
 							</div>
 						</div>
-						
+
 						<div class="form-group">
 							<label for="descriptionByMod">Description: <h6 style="display: inline;">The user being banned will see this message. This message will also appear in the moderator logs.</h6></label>
 							<br>
@@ -613,7 +616,7 @@
 				<div class="modal-body">
 					<h4>Select your room options!</h4>
 					<h6>Default settings have been pre-selected.</h6>
-					
+
 					<label>Game mode:</label>
 					<select class="gameModeSelect" name="gameMode">
 						<!-- The usual values look like the below. This part is inserted dynamically in lobby.js -->
@@ -646,7 +649,7 @@
 				</div>
 				<div class="modal-footer">
 					<button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
-				
+
 					<button id="createNewRoomButton" type="button" class="btn btn-success" data-dismiss="modal">Create</button>
 				</div>
 			</div>
@@ -683,7 +686,7 @@
 	<script type="text/javascript" src="<%-getVersionedPath('/scripts/lobby/sockets/commands2.js')%>"></script>
 	<script type="text/javascript" src="<%-getVersionedPath('/scripts/lobby/sockets/myNotifications.js')%>"></script>
 	<script type="text/javascript" src="<%-getVersionedPath('/scripts/lobby/sockets/game.js')%>"></script>
-	
+
 	<script type="text/javascript" src="<%-getVersionedPath('/scripts/lobby/publicData/avalon.js')%>"></script>
 	<script type="text/javascript" src="<%-getVersionedPath('/scripts/lobby/helper.js')%>"></script>
 

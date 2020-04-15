@@ -31,42 +31,46 @@ VotingTeam.prototype.gameMove = function (socket, buttonPressed, selectedPlayers
 
         // If we have all of our votes, proceed onward
         if (this.thisRoom.playersYetToVote.length === 0) {
-            this.thisRoom.publicVotes = this.thisRoom.votes;
-            this.thisRoom.VHUpdateTeamVotes();
-
-
-            const outcome = calcVotes(this.thisRoom.votes);
-
-            if (outcome === 'yes') {
-                this.thisRoom.phase = 'votingMission';
-                this.thisRoom.playersYetToVote = this.thisRoom.proposedTeam.slice();
-
-                var str = `Mission ${this.thisRoom.missionNum}.${this.thisRoom.pickNum} was approved.${getStrApprovedRejectedPlayers(this.thisRoom.votes, this.thisRoom.playersInGame)}`;
-                this.thisRoom.sendText(this.thisRoom.allSockets, str, 'gameplay-text');
-            }
-            // Hammer reject
-            else if (outcome === 'no' && this.thisRoom.pickNum >= 5) {
-                this.thisRoom.lastProposedTeam = this.thisRoom.proposedTeam;
-                this.thisRoom.missionHistory[this.thisRoom.missionHistory.length] = 'failed';
-
-                this.thisRoom.howWasWon = 'Hammer rejected.';
-                this.thisRoom.sendText(this.thisRoom.allSockets, 'The hammer was rejected.', 'gameplay-text-red');
-
-                this.thisRoom.finishGame('Spy');
-            } else if (outcome === 'no') {
-                this.thisRoom.proposedTeam = [];
-                this.thisRoom.phase = 'pickingTeam';
-
-                var str = `Mission ${this.thisRoom.missionNum}.${this.thisRoom.pickNum} was rejected.${getStrApprovedRejectedPlayers(this.thisRoom.votes, this.thisRoom.playersInGame)}`;
-                this.thisRoom.sendText(this.thisRoom.allSockets, str, 'gameplay-text');
-
-                this.thisRoom.incrementTeamLeader();
-            }
-            this.thisRoom.requireSave = true;
+          this.resolveVotes();
         }
 
         this.thisRoom.distributeGameData();
     }
+};
+
+VotingTeam.prototype.resolveVotes = function (msg="") {
+  this.thisRoom.publicVotes = this.thisRoom.votes;
+  this.thisRoom.VHUpdateTeamVotes();
+
+
+  const outcome = calcVotes(this.thisRoom.votes);
+
+  if (outcome === 'yes') {
+      this.thisRoom.phase = 'votingMission';
+      this.thisRoom.playersYetToVote = this.thisRoom.proposedTeam.slice();
+
+      var str = `Mission ${this.thisRoom.missionNum}.${this.thisRoom.pickNum} was approved${msg}.${getStrApprovedRejectedPlayers(this.thisRoom.votes, this.thisRoom.playersInGame)}`;
+      this.thisRoom.sendText(this.thisRoom.allSockets, str, 'gameplay-text');
+  }
+  // Hammer reject
+  else if (outcome === 'no' && this.thisRoom.pickNum >= 5) {
+      this.thisRoom.lastProposedTeam = this.thisRoom.proposedTeam;
+      this.thisRoom.missionHistory[this.thisRoom.missionHistory.length] = 'failed';
+
+      this.thisRoom.howWasWon = 'Hammer rejected.';
+      this.thisRoom.sendText(this.thisRoom.allSockets, 'The hammer was rejected.', 'gameplay-text-red');
+
+      this.thisRoom.finishGame('Spy');
+  } else if (outcome === 'no') {
+      this.thisRoom.proposedTeam = [];
+      this.thisRoom.phase = 'pickingTeam';
+
+      var str = `Mission ${this.thisRoom.missionNum}.${this.thisRoom.pickNum} was rejected.${getStrApprovedRejectedPlayers(this.thisRoom.votes, this.thisRoom.playersInGame)}`;
+      this.thisRoom.sendText(this.thisRoom.allSockets, str, 'gameplay-text');
+
+      this.thisRoom.incrementTeamLeader();
+  }
+  this.thisRoom.requireSave = true;
 };
 
 

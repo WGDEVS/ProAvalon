@@ -750,6 +750,7 @@ router.get('/ajax/profile/getProfileData/:profileUsername', (req, res) => {
             sendUserData.nationCode = foundUser.nationCode;
             sendUserData.dateJoined = foundUser.dateJoined;
             sendUserData.biography = foundUser.biography;
+            sendUserData.nickname = foundUser.nickname;
             sendUserData.hideStats = foundUser.hideStats;
 
             if (!foundUser.hideStats) {

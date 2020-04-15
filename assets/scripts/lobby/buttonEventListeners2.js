@@ -174,3 +174,46 @@ $('#createNewRoomButton').on('click', (data) => {
         inRoom = true;
     }
 });
+
+var defaultRoles = {
+  'site default': {
+    5: ['autovote', 'assassin', 'merlin', 'morgana', 'percival'],
+    6: ['autovote', 'assassin', 'merlin', 'morgana', 'percival'],
+    7: ['autovote', 'assassin', 'merlin', 'morgana', 'percival'],
+    8: ['autovote', 'assassin', 'merlin', 'morgana', 'percival', 'lady of the lake'],
+    9: ['autovote', 'assassin', 'merlin', 'morgana', 'percival', 'mordred', 'sire of the sea'],
+    10: ['autovote', 'assassin', 'merlin', 'morgana', 'percival', 'mordred', 'oberon', 'lady of the lake'],
+  },
+  'houserules1': {
+    5: ['autovote', 'cloakedassassin', 'assassin', 'merlin', 'oberon'],
+    6: ['autovote', 'assassin', 'merlin', 'morgana', 'percival'],
+    7: ['autovote', 'assassin', 'merlin', 'morgana', 'percival', 'oberon'],
+    8: ['autovote', 'assassin', 'merlin', 'morgana', 'percival', 'lady of the lake'],
+    9: ['autovote', 'singlem4', 'assassin', 'merlin', 'morgana', 'percival', 'mordred', 'lady of the lake'],
+    10: ['autovote', 'assassin', 'merlin', 'morgana', 'percival', 'mordred', 'oberon', 'lady of the lake'],
+  },
+}
+
+
+$('.resetDefaultRoleButton').on('click', function() {
+  var item = $(this).attr("value");
+  if (!defaultRoles.hasOwnProperty(item)) {
+    console.log("default " + item + " does not exist");
+    item = "site default"
+  }
+
+  var numPlayers = roomPlayersData.length;
+  if (numPlayers < 5 || numPlayers == null) {
+    numPlayers = 5;
+  } else if (numPlayers > 10) {
+    numPlayers = 10;
+  }
+  var arr = defaultRoles[item][numPlayers];
+  $('#rolesCardsButtonGroup :input').each(function( inp ) {
+    if (arr.indexOf($(this).attr('id')) >= 0) {
+      $(this).parent().addClass("active");
+    } else {
+      $(this).parent().removeClass("active");
+    }
+  });
+});

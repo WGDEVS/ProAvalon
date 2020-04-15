@@ -25,6 +25,21 @@ const sanitizeHtmlAllowedAttributesForumThread = {
     b: ['style'],
 };
 
+const sanitizeHtmlAllowedTagsNickname = ['a', 'u', 'b', 'i', 'strong', 'em', 'strike', 'span', 'style', 'code'];
+const sanitizeHtmlAllowedAttributesNickname = {
+  a: ['href', 'name', 'target'],
+
+  u: ['style'],
+  b: ['style'],
+  i: ['style'],
+  strong: ['style'],
+  em: ['style'],
+  strike: ['style'],
+  span: ['style'],
+  style: ['style'],
+  code: ['style'],
+}
+
 // Show the mod approving rejecting page
 router.get('/avatargetlinktutorial', (req, res) => {
     res.render('profile/avatargetlinktutorial');
@@ -270,6 +285,10 @@ router.post('/:profileUsername', middleware.checkProfileOwnership, (req, res) =>
         req.body.biography = '';
     }
 
+    if (!req.body.nickname) {
+      req.body.nickname = '';
+    }
+
     if (req.body.nationality && req.body.nationCode) {
         // some browsers are screwing up and sending two nation codes back
         if (typeof (req.body.nationCode) === 'array' || typeof (req.body.nationCode) === 'object') {
@@ -297,6 +316,10 @@ router.post('/:profileUsername', middleware.checkProfileOwnership, (req, res) =>
                     allowedTags: sanitizeHtml.defaults.allowedTags.concat(sanitizeHtmlAllowedTagsForumThread),
                     allowedAttributes: sanitizeHtmlAllowedAttributesForumThread,
                 });
+                foundUser.nickname = sanitizeHtml(req.body.nickname, {
+                    allowedTags: sanitizeHtmlAllowedTagsNickname,
+                    allowedAttributes: sanitizeHtmlAllowedAttributesNickname,
+                }).trim();
 
                 foundUser.nationality = sanitizeHtml(req.body.nationality);
                 foundUser.nationCode = sanitizeHtml(req.body.nationCode.toLowerCase());

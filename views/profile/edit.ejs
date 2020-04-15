@@ -54,16 +54,16 @@
 
     <form action="/profile/<%=userData.username%>" method="POST">
 
-    
+
     <h3>
         Nationality! (None of this is compulsory, you don't have to fill this in.)
     </h3>
-    
+
     <h1><span id="flagSpan" class="flag-icon flag-icon-un" data-toggle="tooltip"></span></h1>
-    
-    
-    
-    
+
+
+
+
     <input type="hidden" value="" name="nationality" id="nationality">
 
     <select id="selectNation" name="nationCode">
@@ -324,6 +324,13 @@
 
     Hide stats: <input type="checkbox" name="hideStats" id="hideStats" value="true">
 
+    <br>
+
+    <h3>
+        Nickname (leave blank for none, allowed html: a, u, b, i, strong, em, strike, span, style, code)
+    </h3>
+    <textarea type="text" name="nickname" id="nickname" rows="1" class="" style="resize: horizontal;" cols="50" ><%=userData.nickname%></textarea>
+
     <h3>
         Biography
     </h3>
@@ -333,7 +340,7 @@
     <button class="btn btn-success" type="submit">Submit</button>
 
     </form>
-    
+
 
 </div>
 
@@ -352,7 +359,7 @@
 
         $('#hideStats').prop('checked', '<%=userData.hideStats%>');
 
-        
+
         var nationCode = '<%=userData.nationCode%>.toUpperCase()';
         var nationality = '<%=userData.nationality%>';
 
@@ -371,7 +378,7 @@
         // console.log($("#selectNation").find(":selected")[0]);
         // console.log($("#selectNation").find(":selected")[0].innerText);
         // console.log($("#selectNation").find(":selected").val());
-        
+
         updateFlag();
 
     });
@@ -380,7 +387,7 @@
         var countryCode = $("#selectNation").find(":selected").val();
         var countryName = $("#selectNation").find(":selected")[0].innerText;
 
-        $("#nationality").val(countryName); 
+        $("#nationality").val(countryName);
 
         $("#flagSpan").removeClass();
         $("#flagSpan").addClass("flag-icon");

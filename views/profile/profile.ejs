@@ -72,7 +72,7 @@
 
                 <div class="row">
                     <div class="col-xs-6 col-md-3 avatarImgDiv">
-                
+
                         <% if(userData.avatarImgRes){ %>
                             <% if(userData.avatarImgRes.includes("http")){ %>
                                 <img class="avatarImg" src=<%= userData.avatarImgRes %>>
@@ -83,23 +83,26 @@
                             <img class="avatarImg" src="../avatars/base-res.png  " >
                         <% } %>
 
-                        
+
 
                     </div>
                     <div class="col-xs-6 col-md-9">
                         <span id="title">
+                            <script language="javascript">
+                            	var profileUsername = "<%=userData.username %>";
+                            </script>
+
                             <h2>
                             <% if(userData.nationality && userData.nationCode){ %>
                                 <span id="flagSpan" class="flag-icon flag-icon-<%=userData.nationCode.toLowerCase()%>" data-toggle="tooltip" title="<%=userData.nationality%>"></span>
                             <% } else { %>
                                 <span id="flagSpan" class="flag-icon flag-icon-un" data-toggle="tooltip" title="United Nations"></span>
-                            <% } %> 
-
-                                <span id="profileUsername"><%=userData.username %> </span>
-                            </h2>  
+                            <% } %>
+                                <span id="profileUsername"><%=userData.username %><%if (userData.nickname != null && userData.nickname.length > 0) { %>&thinsp;(<%- userData.nickname %>)<% } %></span>
+                            </h2>
                             <p> Date joined: <% if(userData.dateJoined){ %>
-                                <%= userData.dateJoined.toDateString() %> 
-                                <% } else { %> 
+                                <%= userData.dateJoined.toDateString() %>
+                                <% } else { %>
                                     N/A
                                 <% } %></p>
 
@@ -110,9 +113,9 @@
 
                             </p>
                         </span>
-                        
+
                     </div>
-                    
+
                 </div>
             </div>
         </div>
@@ -124,7 +127,7 @@
                 </div>
             </div>
         </div>
-        
+
 
         <% if(userData.hideStats){ %>
             <div class="row">
@@ -135,8 +138,8 @@
             <% } else { %>
                 <div class="row" >
                         <div class="col-xs-12 col-md-4">
-                            <h2><u>Stats:</u></h2>  
-            
+                            <h2><u>Stats:</u></h2>
+
                             <table class="table myTable">
                                 <tbody>
                                     <tr>
@@ -172,16 +175,16 @@
                                 </tbody>
                             </table>
                         </div>
-            
+
                         <div class="col-xs-12 col-md-8">
                             <canvas id="statsChart">
                             </canvas>
                         </div>
-                        
+
                     </div>
-            <% } %> 
+            <% } %>
     <% } else { %>
-    
+
         <h1><span id="username"></span> was not found!</h1>
 
         <script>
@@ -224,7 +227,7 @@ $("#searchButton").on("click", function(e){
     //redirect to the correct path.
     window.location.replace("" + $("#searchInput")[0].value);
 });
-        
+
 </script>
 
 
@@ -232,7 +235,7 @@ $("#searchButton").on("click", function(e){
 
 <script>
     var userData;
-    
+
 
     $( document ).ready(function() {
 
@@ -240,39 +243,39 @@ $("#searchButton").on("click", function(e){
         //     $(".avatarImg").attr("src", userData.avatarImgSpy);
         // });
 
-        
-       
+
+
 
 
 
         $( ".avatarImg" ).hover(
             function() {
                 var str = "";
-                if(userData.avatarImgSpy){ 
-                    if(userData.avatarImgSpy.includes("http")){ 
+                if(userData.avatarImgSpy){
+                    if(userData.avatarImgSpy.includes("http")){
                         str = "<%=userData.avatarImgSpy%>";
                     } else {
                         str = "../avatars/<%=userData.avatarImgSpy%>";
-                    } 
-                } else{ 
+                    }
+                } else{
                     str = "../avatars/base-spy.png";
-                } 
+                }
 
                 console.log("spy");
                 $(".avatarImg").attr("src", str);
-            }, 
-            
+            },
+
             function() {
                 var str = "";
-                if(userData.avatarImgRes){ 
-                    if(userData.avatarImgRes.includes("http")){ 
+                if(userData.avatarImgRes){
+                    if(userData.avatarImgRes.includes("http")){
                         str = "<%=userData.avatarImgRes%>";
                     } else {
                         str = "../avatars/<%=userData.avatarImgRes%>";
-                    } 
-                } else{ 
+                    }
+                } else{
                     str = "../avatars/base-res.png";
-                } 
+                }
 
                 console.log("res");
                 $(".avatarImg").attr("src", str);
@@ -285,7 +288,7 @@ $("#searchButton").on("click", function(e){
 
 
         xmlhttp = new XMLHttpRequest();
-        xmlhttp.open("GET","/ajax/profile/getProfileData/" + $("#profileUsername")[0].innerHTML, true);
+        xmlhttp.open("GET","/ajax/profile/getProfileData/" + profileUsername, true);
 
        // console.log("/ajax/profile/getProfileData/" + $("#profileUsername")[0].innerHTML);
 
@@ -297,7 +300,7 @@ $("#searchButton").on("click", function(e){
                 if(!userData.hideStats){
                     drawCharts();
                 }
-                
+
             }
         }
         xmlhttp.send();
@@ -368,7 +371,7 @@ $("#searchButton").on("click", function(e){
         var spyLosses = userData.totalLosses - userData.totalResLosses;
 
 
-        
+
         //create array for the chartjs hover stats:
         //first two entries are overall res and overall spy
         var generalRoleStatsArray = [
@@ -431,21 +434,21 @@ $("#searchButton").on("click", function(e){
                 var role = capitalizeFirstLetter(role);
                 generalLabelsArray.push(role);
                 // console.log(generalLabelsArray);
-                
-                
-                
+
+
+
                 if(allianceOfRole[role] === "Resistance"){
                     backgroundColor.push(blue1);
-                    borderColor.push(blueBorder);  
+                    borderColor.push(blueBorder);
                 }
                 else{
                     borderColor.push(redBorder);
-                    backgroundColor.push(red1);  
+                    backgroundColor.push(red1);
                 }
             }
         }
-        
-        
+
+
         var dataGeneral = {
             labels: generalLabelsArray,
             datasets: [{
@@ -481,16 +484,16 @@ $("#searchButton").on("click", function(e){
                 callbacks: {
                 label: function(tooltipItem, chartData) {
                     // return "lmao";
-                    return chartData.labels[tooltipItem.index] + ': ' + chartData.datasets[0].data[tooltipItem.index] + '%' + " " + "[" + generalRoleStatsArray[tooltipItem.index].wins + "W/" + generalRoleStatsArray[tooltipItem.index].losses + "L]";                    
+                    return chartData.labels[tooltipItem.index] + ': ' + chartData.datasets[0].data[tooltipItem.index] + '%' + " " + "[" + generalRoleStatsArray[tooltipItem.index].wins + "W/" + generalRoleStatsArray[tooltipItem.index].losses + "L]";
                     }
                 }
             },
 
-            
+
 
         }
 
-        
+
 
 
 
@@ -549,8 +552,3 @@ function capitalizeFirstLetter(string) {
 
 
 <% include ../partials/footer %>
-
-
-
-
-

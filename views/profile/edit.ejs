@@ -326,8 +326,13 @@
 
     <br>
 
+    <script>
+    $(document).ready(function(){
+      $('[data-toggle="tooltip"]').tooltip();
+    });
+    </script>
     <h3>
-        Nickname (leave blank for none, allowed html: a, u, b, i, strong, em, strike, span, style, code)
+        Nickname <a href="#" data-toggle="tooltip" title="leave blank for none, html tags are allowed: a, u, b, i, strong, em, strike, span, style, code">(*)</a>
     </h3>
     <textarea type="text" name="nickname" id="nickname" rows="1" class="" style="resize: horizontal;" cols="50" ><%=userData.nickname%></textarea>
 

@@ -268,7 +268,7 @@ router.get('/:profileUsername/edit', middleware.checkProfileOwnership, (req, res
         } else {
             res.render('profile/edit', { userData: foundUser, patreonLoginUrl: loginUrl });
         }
-    });
+    }).addPrivateData(true);
 });
 
 
@@ -324,6 +324,7 @@ router.post('/:profileUsername', middleware.checkProfileOwnership, (req, res) =>
                 foundUser.nationality = sanitizeHtml(req.body.nationality);
                 foundUser.nationCode = sanitizeHtml(req.body.nationCode.toLowerCase());
                 foundUser.hideStats = req.body.hideStats;
+                foundUser.privateNickname = req.body.privateNickname;
                 foundUser.save();
 
                 res.redirect(`/profile/${foundUser.username}`);
@@ -342,7 +343,7 @@ router.get('/:profileUsername', (req, res) => {
         } else {
             res.render('profile/profile', { userData: foundUser, personViewingUsername: req.user.username });
         }
-    });
+    }).addPrivateData();
 });
 
 

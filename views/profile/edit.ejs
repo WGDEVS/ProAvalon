@@ -336,6 +336,14 @@
     </h3>
     <textarea type="text" name="nickname" id="nickname" rows="1" class="" style="resize: horizontal;" cols="50" ><%=userData.nickname%></textarea>
 
+    <br>
+    <br>
+
+    Private Nickname (only show to other players in game): <input type="checkbox" name="privateNickname" id="privateNickname" value="true">
+
+    <br>
+
+
     <h3>
         Biography
     </h3>
@@ -364,6 +372,7 @@
 
         $('#hideStats').prop('checked', '<%=userData.hideStats%>');
 
+        $('#privateNickname').prop('checked', '<%=userData.privateNickname%>');
 
         var nationCode = '<%=userData.nationCode%>.toUpperCase()';
         var nationality = '<%=userData.nationality%>';

@@ -3,6 +3,7 @@
 // Get all the gamemodes and their roles/cards/phases.
 const gameModeNames = [];
 const fs = require('fs');
+const User = require('../models/user');
 
 fs.readdirSync('./gameplay/').filter((file) => {
     if (fs.statSync(`${'./gameplay' + '/'}${file}`).isDirectory() === true && file !== 'commonPhases' && file !== 'houserules') {
@@ -103,6 +104,21 @@ Room.prototype.playerJoinRoom = function (socket, inputPassword) {
             }
         }
     }
+
+    // Update nickname and hidden status
+    User.findById(
+      socket.request.user._id,
+      'nickname privateNickname',
+      { lean: true },
+      function (err, foundUser) {
+        if (err) {
+          console.log(err);
+        } else if (foundUser != null) {
+          socket.request.user.nickname = foundUser.nickname;
+          socket.request.user.privateNickname = (foundUser.privateNickname === true);
+        }
+      }
+    );
 
 
     this.allSockets.push(socket);
@@ -306,11 +322,15 @@ Room.prototype.updateRoomPlayers = function () {
         return (textA < textB) ? -1 : (textA > textB) ? 1 : 0;
     });
 
+    nextSpectatorIdx = 0;
+
     // Send the data to all sockets within the room.
     for (let i = 0; i < this.allSockets.length; i++) {
         const tmpSocket = this.allSockets[i];
+        var isSpectator = (socketsOfSpectators.indexOf(this.allSockets[i]) >= 0);
+
         if (tmpSocket && typeof tmpSocket !== 'undefined') {
-            tmpSocket.emit('update-room-players', this.getRoomPlayers());
+            tmpSocket.emit('update-room-players', this.getRoomPlayers(showPrivateData=(this.gameStarted && !this.finished && !isSpectator)));
             tmpSocket.emit('update-room-spectators', usernamesOfSpecs);
             tmpSocket.emit('update-room-info', { maxNumPlayers: this.maxNumPlayers });
         }
@@ -318,7 +338,7 @@ Room.prototype.updateRoomPlayers = function () {
 };
 
 
-Room.prototype.getRoomPlayers = function () {
+Room.prototype.getRoomPlayers = function (showPrivateData=false) {
     const roomPlayers = [];
 
     for (let i = 0; i < this.socketsOfPlayers.length; i++) {
@@ -333,12 +353,15 @@ Room.prototype.getRoomPlayers = function () {
 
         roomPlayers[i] = {
             username: this.socketsOfPlayers[i].request.user.username,
-            nickname: this.socketsOfPlayers[i].request.user.nickname,
             avatarImgRes: this.socketsOfPlayers[i].request.user.avatarImgRes,
             avatarImgSpy: this.socketsOfPlayers[i].request.user.avatarImgSpy,
             avatarHide: this.socketsOfPlayers[i].request.user.avatarHide,
             claim: isClaiming,
         };
+
+        if (showPrivateData || !this.socketsOfPlayers[i].request.user.privateNickname) {
+          roomPlayers[i].nickname = this.socketsOfPlayers[i].request.user.nickname;
+        }
 
         // give the host the teamLeader star
         if (roomPlayers[i].username === this.host) {

@@ -101,7 +101,9 @@ const UserSchema = new mongoose.Schema({
     nickname: {
         type: String,
         default: '',
+        select: false,
     },
+    privateNickname: Boolean,
 
 
     // dont need to worry about roleWins growing out of control
@@ -153,5 +155,14 @@ const UserSchema = new mongoose.Schema({
 });
 
 UserSchema.plugin(passportLocalMongoose);
+
+UserSchema.query.addPrivateData = function(forceReveal=false) {
+  return this.select("+nickname").map((user) => {
+    if (!forceReveal && user.privateNickname) {
+      user.nickname = '';
+    }
+    return user;
+  });
+};
 
 module.exports = mongoose.model('User', UserSchema);

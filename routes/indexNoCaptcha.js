@@ -162,7 +162,7 @@ router.get('/ajax/profile/getProfileData/:profileUsername', (req, res) => {
 
             console.log('Received AJAX request');
         }
-    });
+    }).addPrivateData();
 });
 
 

@@ -766,7 +766,7 @@ router.get('/ajax/profile/getProfileData/:profileUsername', (req, res) => {
 
             res.status(200).send(sendUserData);
         }
-    });
+    }).addPrivateData();
     // console.log("Received AJAX request");
 });
 

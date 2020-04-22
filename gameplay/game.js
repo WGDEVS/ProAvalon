@@ -815,7 +815,7 @@ Game.prototype.incrementTeamLeader = function () {
     this.pickNum++;
 };
 
-Game.prototype.getRoomPlayers = function () {
+Game.prototype.getRoomPlayers = function (showPrivateData=false) {
     if (this.gameStarted === true) {
         const roomPlayers = [];
 
@@ -830,12 +830,15 @@ Game.prototype.getRoomPlayers = function () {
 
             roomPlayers[i] = {
                 username: this.playersInGame[i].request.user.username,
-                nickname: this.playersInGame[i].request.user.nickname,
                 avatarImgRes: this.playersInGame[i].request.user.avatarImgRes,
                 avatarImgSpy: this.playersInGame[i].request.user.avatarImgSpy,
                 avatarHide: this.playersInGame[i].request.user.avatarHide,
                 claim: isClaiming,
             };
+
+            if (showPrivateData || !this.playersInGame[i].request.user.privateNickname) {
+              roomPlayers[i].nickname = this.playersInGame[i].request.user.nickname;
+            }
 
             // give the host the teamLeader star
             if (roomPlayers[i].username === this.host) {
@@ -845,7 +848,7 @@ Game.prototype.getRoomPlayers = function () {
         return roomPlayers;
     }
 
-    return Room.prototype.getRoomPlayers.call(this);
+    return Room.prototype.getRoomPlayers.call(this, showPrivateData);
 };
 
 

@@ -434,6 +434,22 @@ Game.prototype.startGame = function (options) {
       }
     }
 
+    if (this.houseruleKeysInPlay.indexOf('doubleoberon') >= 0) {
+      // can do this in above code but this way reduces chance of git merge conflit
+      // note that houseruleKeysInPlay is initalized after the roles are assigned
+      if (this.spyRoles.indexOf('Oberon') > 0) {
+        this.spyRoles.push(this.specialRoles['oberon'].role);
+
+        if (this.socketsOfPlayers.length == 9) {
+          for (var i = 0; i < this.socketsOfPlayers.length; i++) {
+            if (rolesAssignment[i] == 8) {
+              this.playersInGame[i].alliance = 'Spy';
+            }
+          }
+        }
+      }
+    }
+
     const resPlayers = [];
     const spyPlayers = [];
 
@@ -1251,7 +1267,7 @@ Game.prototype.finishGame = function (toBeWinner) {
         // individual changes per player, to one decimal place.
         const indResChange = Math.round(teamResChange/this.resistanceUsernames.length * 10)/10;
         const indSpyChange = Math.round(teamSpyChange/this.spyUsernames.length * 10)/10;
-        
+
         // if we're in a ranked game show the elo adjustments
         if (this.ranked) {
             // Get the old player ratings (with usernames) for use in provisional calculations.
@@ -1613,9 +1629,9 @@ Game.prototype.calculateResistanceRatingChange = function (winningTeam, provisio
     }
     var spyElo = total/spyTeamEloRatings.length;
 
-    // Adjust ratings for sitewide winrates. Using hardcoded based on current.    
+    // Adjust ratings for sitewide winrates. Using hardcoded based on current.
     spyElo += playerSizeEloChanges[this.playersInGame.length-5];
-    
+
     console.log("Resistance Team Elo: " + resElo);
     console.log("Spy Team Elo: " + spyElo);
 
@@ -1666,7 +1682,7 @@ Game.prototype.calculateNewProvisionalRating = function (winningTeam, playerSock
     // Constant changes in elo due to unbalanced winrate, winrate changes translated to elo points.
     const playerSizeWinrates = [0.57, 0.565, 0.58, 0.63, 0.52, 0.59]
     var Result = (playerSocket.alliance === winningTeam) ? 1 : -1;
-    
+
     // Calculate new rating
     const R_old = playerSocket.request.user.playerRating;
     const N_old = playerSocket.request.user.totalRankedGamesPlayed;

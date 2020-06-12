@@ -27,6 +27,8 @@ class Merlin {
                 if (this.thisRoom.playersInGame[i].alliance === 'Spy') {
                     if (this.thisRoom.playersInGame[i].role === 'Mordred') {
                         // don't add mordred for Merlin to see
+                    } else if (this.thisRoom.playersInGame[i].role === 'Assassin' && this.thisRoom.houseruleKeysInPlay.indexOf('cloakedassassin') >= 0) {
+                      // don't add cloaked assassin either
                     } else {
                         // add the spy
                         array.push(this.thisRoom.playersInGame[i].username);

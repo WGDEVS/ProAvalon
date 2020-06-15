@@ -2188,7 +2188,7 @@ var actionsObj = {
           return;
         }
         let usernameLower = args[1].toLowerCase();
-        User.findOne({ usernameLower: usernameLower }).exec((err, foundUser) => {
+        User.findOne({ usernameLower: usernameLower }).addPrivateData(true).exec((err, foundUser) => {
           if (err || foundUser == null) {
             senderSocket.emit('messageCommandReturnStr', {
                 message: `Can't find user ${usernameLower}!`,

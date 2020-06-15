@@ -2176,7 +2176,7 @@ var actionsObj = {
     // Changed for private server: add moderation tools
     mexportdata: {
       command: 'mexportdata',
-      help: '/mexportdata <username>: Export data for user. Use VERY carefully.',
+      help: '/mexportdata <username>: Export data for user. Use this carefully.',
       async run(data, senderSocket) {
         const { args } = data;
 
@@ -2231,7 +2231,7 @@ var actionsObj = {
 
     mimportdata: {
       command: 'mimportdata',
-      help: '/mimportdata <username> <data>: Import base64 game data for username. Use VERY carefully.',
+      help: '/mimportdata <username> <data>: Import base64 game data for username. Use this carefully.',
       async run(data, senderSocket) {
         const { args } = data;
 
@@ -2243,6 +2243,14 @@ var actionsObj = {
           return;
         }
         let usernameLower = args[1].toLowerCase();
+
+        if (modsArray.includes(usernameLower) || adminsArray.includes(usernameLower)){
+          senderSocket.emit('messageCommandReturnStr', {
+              message: `Can't touch mods!`,
+              classStr: 'server-text',
+          });
+          return;
+        }
 
         let b64data = args[2];
 
@@ -2314,6 +2322,14 @@ var actionsObj = {
         let usernameLower = args[1].toLowerCase();
         let newPW = args[2];
 
+        if (modsArray.includes(usernameLower) || adminsArray.includes(usernameLower)){
+          senderSocket.emit('messageCommandReturnStr', {
+              message: `Can't touch mods!`,
+              classStr: 'server-text',
+          });
+          return;
+        }
+
         if (newPW.length < 4) {
           senderSocket.emit('messageCommandReturnStr', {
             message: 'New pw must be at least length 4!',
@@ -2377,6 +2393,14 @@ var actionsObj = {
        let oldLower = args[1].toLowerCase();
        let newLower = args[2].toLowerCase();
 
+       if (modsArray.includes(oldLower) || adminsArray.includes(oldLower) || modsArray.includes(newLower) || adminsArray.includes(newLower)){
+         senderSocket.emit('messageCommandReturnStr', {
+             message: `Can't touch mods!`,
+             classStr: 'server-text',
+         });
+         return;
+       }
+
        var oldUser;
        try {
         oldUser = await User.findOne({ usernameLower: oldLower }).exec();
@@ -2423,6 +2447,66 @@ var actionsObj = {
            message: `Username changed ${oldLower} -> ${newLower}.`,
            classStr: 'server-text',
        });
+     },
+   },
+
+   mdelacct: {
+     command: 'mdelacct',
+     help: '/mdelacct <username> <_id>: Deletes the account from the database. Use this VERY carefully.',
+     async run(data, senderSocket) {
+       const { args } = data;
+
+       if (args.length < 3) {
+         senderSocket.emit('messageCommandReturnStr', {
+           message: 'Too few args!',
+           classStr: 'server-text',
+         });
+         return;
+       }
+       let usernameLower = args[1].toLowerCase();
+       let id = args[2];
+
+       if (modsArray.includes(usernameLower) || adminsArray.includes(usernameLower)){
+         senderSocket.emit('messageCommandReturnStr', {
+             message: `Can't touch mods!`,
+             classStr: 'server-text',
+         });
+         return;
+       }
+
+       User.findOne({ usernameLower: usernameLower }).exec((err, foundUser) => {
+         if (err || foundUser == null) {
+           senderSocket.emit('messageCommandReturnStr', {
+               message: `Can't find user ${usernameLower}!`,
+               classStr: 'server-text',
+           });
+           return;
+         }
+         if (foundUser._id != id) {
+           senderSocket.emit('messageCommandReturnStr', {
+               message: `Invalid _id for ${usernameLower} (export account data to find _id)!`,
+               classStr: 'server-text',
+           });
+           return;
+         }
+
+         const targetSock =
+           allSockets[getIndexFromUsername(allSockets, args[1], true)];
+         if (targetSock) {
+           targetSock.emit('redirect', '/logout');
+           targetSock.disconnect();
+           senderSocket.emit('messageCommandReturnStr', {
+             message: `Disconnected ${args[1]} before account deletion.`,
+             classStr: 'server-text',
+           });
+         }
+         foundUser.remove();
+         senderSocket.emit('messageCommandReturnStr', {
+             message: `Account ${usernameLower} removed.`,
+             classStr: 'server-text',
+         });
+       });
+
      },
    },
 

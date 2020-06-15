@@ -158,7 +158,7 @@ UserSchema.plugin(passportLocalMongoose);
 
 UserSchema.query.addPrivateData = function(forceReveal=false) {
   return this.select("+nickname").map((user) => {
-    if (!forceReveal && user.privateNickname) {
+    if (!forceReveal && user != null && user.privateNickname) {
       user.nickname = '';
     }
     return user;

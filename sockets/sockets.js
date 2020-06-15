@@ -1,5 +1,7 @@
 // sockets
 
+var zlib = require('zlib'); // Changed for private server
+
 const axios = require('axios');
 const gameRoom = require('../gameplay/gameWrapper');
 
@@ -2170,6 +2172,260 @@ var actionsObj = {
         });
       },
     },
+
+    // Changed for private server: add moderation tools
+    mexportdata: {
+      command: 'mexportdata',
+      help: '/mexportdata <username>: Export data for user. Use VERY carefully.',
+      async run(data, senderSocket) {
+        const { args } = data;
+
+        if (args.length < 2) {
+          senderSocket.emit('messageCommandReturnStr', {
+            message: 'Too few args!',
+            classStr: 'server-text',
+          });
+          return;
+        }
+        let usernameLower = args[1].toLowerCase();
+        User.findOne({ usernameLower: usernameLower }).exec((err, foundUser) => {
+          if (err || foundUser == null) {
+            senderSocket.emit('messageCommandReturnStr', {
+                message: `Can't find user ${usernameLower}!`,
+                classStr: 'server-text',
+            });
+            return;
+          } else {
+             var props = [
+               "_id", "usernameLower", "username",
+               "avatarImgRes", "avatarImgSpy", "__v",
+               "totalTimePlayed", "dateJoined", "emailAddress", "emailVerified", "emailToken",  "IPAddresses", "lastIPAddress",
+               "totalGamesPlayed", "winsLossesGameSizeBreakdown", "roleStats", "totalWins", "totalLosses", "totalResWins", "totalResLosses",
+               "avatarHide", "hideStats", "nationality", "nationCode", "timeZone", "biography", "mutedPlayers", "nickname", "privateNickname",
+               "totalRankedGamesPlayed", "playerRating", "ratingBracket",
+             ];
+             var stats = {}
+             props.forEach((prop) => {
+               stats[prop] = foundUser[prop];
+             });
+             zlib.gzip(JSON.stringify(stats), (err, buff) => {
+               if (err) {
+                 senderSocket.emit('messageCommandReturnStr', {
+                     message: `Can't compress data, try again!`,
+                     classStr: 'server-text',
+                 });
+                 return;
+               }
+               let b64data = Buffer.from(buff).toString('base64');
+               senderSocket.emit('messageCommandReturnStr', {
+                   message: `Data for user ${usernameLower}: ${b64data}`,
+                   classStr: 'server-text',
+               });
+             });
+
+          }
+        });
+
+      }
+    },
+
+    mimportdata: {
+      command: 'mimportdata',
+      help: '/mimportdata <username> <data>: Import base64 game data for username. Use VERY carefully.',
+      async run(data, senderSocket) {
+        const { args } = data;
+
+        if (args.length < 3) {
+          senderSocket.emit('messageCommandReturnStr', {
+            message: 'Too few args!',
+            classStr: 'server-text',
+          });
+          return;
+        }
+        let usernameLower = args[1].toLowerCase();
+
+        let b64data = args[2];
+
+        zlib.gunzip(new Buffer(b64data, 'base64'), (err, buff) => {
+          if (err) {
+            senderSocket.emit('messageCommandReturnStr', {
+                message: `Can't uncompress data!`,
+                classStr: 'server-text',
+            });
+            return;
+          }
+
+          var stats;
+          try {
+            stats = JSON.parse(buff.toString());
+          } catch (e) {
+            senderSocket.emit('messageCommandReturnStr', {
+                message: `Invalid JSON!`,
+                classStr: 'server-text',
+            });
+            return;
+          }
+
+          User.findOne({ usernameLower: usernameLower }).exec((err, foundUser) => {
+            if (err || foundUser == null) {
+              senderSocket.emit('messageCommandReturnStr', {
+                  message: `Can't find user ${usernameLower}!`,
+                  classStr: 'server-text',
+              });
+              return;
+            } else {
+                var props = [
+                  "avatarImgRes", "avatarImgSpy", "__v",
+                  "totalTimePlayed", "dateJoined", "emailAddress", "emailVerified", "emailToken",  "IPAddresses", "lastIPAddress",
+                  "totalGamesPlayed", "winsLossesGameSizeBreakdown", "roleStats", "totalWins", "totalLosses", "totalResWins", "totalResLosses",
+                  "avatarHide", "hideStats", "nationality", "nationCode", "timeZone", "biography", "mutedPlayers", "nickname", "privateNickname",
+                  "totalRankedGamesPlayed", "playerRating", "ratingBracket",
+                ];
+                var stats = {}
+                props.forEach((prop) => {
+                  foundUser[prop] = stats[prop];
+                  foundUser.markModified(prop);
+                });
+                foundUser.save();
+               senderSocket.emit('messageCommandReturnStr', {
+                   message: `Data successfully imported for user ${usernameLower}.`,
+                   classStr: 'server-text',
+               });
+             }
+            });
+        });
+
+      },
+    },
+
+    msetpw: {
+      command: 'msetpw',
+      help: '/msetpw <username> <pw>: Set the pw for the username. Use this carefully.',
+      async run(data, senderSocket) {
+        const { args } = data;
+
+        if (args.length < 3) {
+          senderSocket.emit('messageCommandReturnStr', {
+            message: 'Too few args!',
+            classStr: 'server-text',
+          });
+          return;
+        }
+        let usernameLower = args[1].toLowerCase();
+        let newPW = args[2];
+
+        if (newPW.length < 4) {
+          senderSocket.emit('messageCommandReturnStr', {
+            message: 'New pw must be at least length 4!',
+            classStr: 'server-text',
+          });
+          return;
+        }
+
+        User.findOne({ usernameLower: usernameLower }).exec((err, foundUser) => {
+          if (err || foundUser == null) {
+            senderSocket.emit('messageCommandReturnStr', {
+                message: `Can't find user ${usernameLower}!`,
+                classStr: 'server-text',
+            });
+            return;
+          } else {
+            foundUser.setPassword(newPW, function(err,user){
+              if (err) {
+                senderSocket.emit('messageCommandReturnStr', {
+                    message: "Can't save password, please try again!",
+                    classStr: 'server-text',
+                });
+              } else {
+                foundUser.save();
+                senderSocket.emit('messageCommandReturnStr', {
+                    message: `Password set for ${usernameLower}.`,
+                    classStr: 'server-text',
+                });
+
+                const targetSock =
+                  allSockets[getIndexFromUsername(allSockets, args[1], true)];
+                if (targetSock) {
+                  targetSock.emit('redirect', '/logout');
+                  targetSock.disconnect();
+                  senderSocket.emit('messageCommandReturnStr', {
+                    message: `Disconnected ${args[1]} after password change.`,
+                    classStr: 'server-text',
+                  });
+                }
+              }
+             });
+          }
+        });
+
+      },
+   },
+
+   mchangeuname: {
+     command: 'mchangeuname',
+     help: '/mchangeuname <old> <new>: Change a username. Use this carefully.',
+     async run(data, senderSocket) {
+       const { args } = data;
+
+       if (args.length < 3) {
+         senderSocket.emit('messageCommandReturnStr', {
+           message: 'Too few args!',
+           classStr: 'server-text',
+         });
+         return;
+       }
+       let oldLower = args[1].toLowerCase();
+       let newLower = args[2].toLowerCase();
+
+       var oldUser;
+       try {
+        oldUser = await User.findOne({ usernameLower: oldLower }).exec();
+        if (oldUser == null) {
+          throw 'Not found!';
+        }
+      } catch (err) {
+        senderSocket.emit('messageCommandReturnStr', {
+          message: `User ${oldLower} not found`,
+          classStr: 'server-text',
+        });
+        return;
+      }
+      try {
+         var newUser = await User.findOne({ usernameLower: newLower }).exec();
+         if (newUser != null) {
+           throw 'Found!';
+         }
+       } catch (err) {
+         senderSocket.emit('messageCommandReturnStr', {
+           message: `User ${newLower} already exists`,
+           classStr: 'server-text',
+         });
+         return;
+       }
+
+       const targetSock =
+         allSockets[getIndexFromUsername(allSockets, args[1], true)];
+       if (targetSock) {
+         targetSock.emit('redirect', '/logout');
+         targetSock.disconnect();
+         senderSocket.emit('messageCommandReturnStr', {
+           message: `Disconnected ${args[1]} before username change.`,
+           classStr: 'server-text',
+         });
+       }
+
+       oldUser.username = args[2];
+       oldUser.usernameLower = newLower;
+       oldUser.markModified("username");
+       oldUser.markModified("usernameLower");
+       oldUser.save();
+       senderSocket.emit('messageCommandReturnStr', {
+           message: `Username changed ${oldLower} -> ${newLower}.`,
+           classStr: 'server-text',
+       });
+     },
+   },
+
   },
 
   adminCommands: {
